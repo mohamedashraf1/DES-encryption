@@ -22,7 +22,9 @@ public class DESEncryption {
         String str = sb.toString();
         return str;
     }
-    
+
+    //mohamed ashraaf
+
     public String XORing(String plainText, String key){
         ArrayList<String> output = new ArrayList<String>();
         String[] plainChars = plainText.split("");
