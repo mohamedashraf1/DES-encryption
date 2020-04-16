@@ -419,7 +419,7 @@ public class DESEncryption {
     }
     
     public String encrypt() throws IOException{//cipher
-        String path = "F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\plain.txt";
+        String path = "F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\text.txt";
         ArrayList<String> chars = make64(path);//get the plain text as array each index contain 64-bit
         ArrayList<String> keys = generateKey();//generate the 16 keys
         String cipher = "";
@@ -573,14 +573,19 @@ public class DESEncryption {
             int a = Integer.parseInt(decipher.substring(8*i,(i+1)*8),2);
             str += (char)(a);
         }
-
-        System.out.println(str);
-        return decipher;
+        
+        //write the original text in original.txt
+        FileWriter fw=new FileWriter("F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\original.txt");
+        for (int i = 0; i < str.length(); i++) 
+            fw.write(str.charAt(i));
+        fw.close();
+        return str;
     }
     public static void main(String[] args) throws IOException {
         DESEncryption des = new DESEncryption();
         des.encrypt();
-        des.decrypt();
+        String original = des.decrypt();
+        System.out.println("original tsxt : " + original);
     }
     
 }
