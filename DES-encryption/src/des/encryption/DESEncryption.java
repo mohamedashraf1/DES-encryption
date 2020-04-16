@@ -142,12 +142,12 @@ public class DESEncryption {
         return tmp;
     }
     
-    public ArrayList<String> make64(String path) throws IOException{
+    public ArrayList<String> make64(String path) throws IOException{//read the data and make it n*64-bit where n is integer > 1
         ArrayList<String> chars = new ArrayList<String>();
-        ArrayList<String> data = readfile(path);
+        ArrayList<String> data = readfile(path);//read data
         String plain = data.get(0);
         String binary = "";
-        
+        //convert plain text to binary
         for(int i = 0 ; i < plain.length() ; i++){
             int num = (int)plain.charAt(i);//get ascii
             String tmp = Integer.toBinaryString(num); //get binary  0 1110101
@@ -156,7 +156,7 @@ public class DESEncryption {
             }
             binary += tmp;
         }
-        
+        //cut the binary into 64-bit each and put it in chars
         for(int i = 0 ; i < binary.length() ; i+=64){
             String tmp= "";
             for(int j = i ; j < i+64 ; j++){
@@ -166,7 +166,7 @@ public class DESEncryption {
             }
             chars.add(tmp);
         }
-        
+        //check if the last one is not equal to 64 if not add zeros to the right
         if(chars.get(chars.size()-1).length() != 64){
             String tmp2 = chars.get(chars.size()-1);
             while(tmp2.length() < 64){//add the missing bits
@@ -176,13 +176,11 @@ public class DESEncryption {
         }
         return chars;
     }
-    public String readKey() throws IOException{
-        //String path = "F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\key.txt";
-        //ArrayList<String> chars = make64(path);
+    public String readKey() throws IOException{//read key from user and enter it to pc1
         
         String key = "";
         
-        while(key.length() != 64)
+        while(key.length() != 64)//get input from user and make sure it's exactly 64-bit 
         {
             key = "";
             System.out.println("this  key is too short please enter 8 characters ");
@@ -199,7 +197,7 @@ public class DESEncryption {
             }
         }
         
-        
+        //commit the key to PC-1 
         String keypc1 = "";
         for(int i = 0 ; i < 56 ; i++){
             keypc1 += key.charAt(pc1[i] - 1);
@@ -207,7 +205,7 @@ public class DESEncryption {
         
         return keypc1;
     }
-    public String rightShift(String data, int num){
+    public String rightShift(String data, int num){//circullar right shift by num
         String shift = "";
         if  (num == 1){
             shift += data.charAt(27);
@@ -228,7 +226,7 @@ public class DESEncryption {
                 
         return shift; 
     }
-    public String leftShift(String data, int num)
+    public String leftShift(String data, int num)//circullar left shift by num
     {
         String shift = "";
         if  (num == 1){
@@ -251,13 +249,13 @@ public class DESEncryption {
                 
         return shift; 
     }
-    public ArrayList<String> generateKey() throws IOException{
+    public ArrayList<String> generateKey() throws IOException{//read first key and generate 16 more keys
         ArrayList<String> keys = new ArrayList<String>();
-        String key = readKey();
+        String key = readKey();//read key 0
         String left = "" , right ="";
         
         for(int i = 1 ; i< 17 ; i++){
-            
+            //split the key into two parts
             for(int j = 0 ; j < 56 ; j++){
                 if(j < 28){
                     left += key.charAt(j);
@@ -265,6 +263,7 @@ public class DESEncryption {
                 else
                     right += key.charAt(j);
             }
+            //check what round we are in so you know the number of shift
             if(i == 1 || i == 2 || i == 9 || i == 16){
                 right = leftShift(right,1);
                 left = leftShift(left,1);
@@ -277,6 +276,7 @@ public class DESEncryption {
             
             
             String tmp="";
+            //addmit key to PC-2
             for(int j = 0 ; j < pc2.length ;j++){
                 tmp += key.charAt(pc2[j] - 1);
                 
@@ -289,19 +289,20 @@ public class DESEncryption {
         
         return keys;
     }
-    public ArrayList<String> generateKeyDec() throws IOException{
+    public ArrayList<String> generateKeyDec() throws IOException{//call key-16 and generate 16 more keys
         ArrayList<String> keys = new ArrayList<String>();
         String key = readKey();
         String left = "" , right ="";
         
         String tmp="";
+        //addmit key to PC-2
         for(int j = 0 ; j < pc2.length ;j++){
             tmp += key.charAt(pc2[j] - 1);
         }
         keys.add(tmp);
         
-        for(int i = 2 ; i< 17 ; i++){
-            
+        for(int i = 2 ; i< 17 ; i++){//calculate the rest 15 keys
+            //split key
             for(int j = 0 ; j < 56 ; j++){
                 if(j < 28){
                     left += key.charAt(j);
@@ -309,6 +310,7 @@ public class DESEncryption {
                 else
                     right += key.charAt(j);
             }
+            //check what round we are in so you know the number of shift
             if(i == 1 || i == 2 || i == 9 || i == 16){
                 right = rightShift(right,1);
                 left = rightShift(left,1);
@@ -321,6 +323,7 @@ public class DESEncryption {
             left = "";right = "";
             
             tmp="";
+            //addmit key to PC-2
             for(int j = 0 ; j < pc2.length ;j++){
                 tmp += key.charAt(pc2[j] - 1);
             }
@@ -329,7 +332,7 @@ public class DESEncryption {
         
         return keys;
     }
-    public int toDesimal(String n){
+    public int toDesimal(String n){//transform binary in a string to its' desimal number 
         
         String num = n; 
         int dec_value = 0; 
@@ -347,7 +350,7 @@ public class DESEncryption {
   
         return dec_value;
     }
-    public String S_boxing(String tmp,int round){
+    public String S_boxing(String tmp,int round){//take 48-bit string and operate on them to output 32-bit 
         String row = tmp.charAt(5) + "";
         row += tmp.charAt(0);
         String col = tmp.charAt(1)+"" ;
@@ -388,11 +391,13 @@ public class DESEncryption {
         
         return binary;
     }
-    public String F_Function(String expand, String key){
+    //xoring for the expand of the right and the key then transform the output into 32-bit instead of 48-bit
+    //then the output goes into permutaion table
+    public String F_Function(String expand, String key){  
         String xor = XORing(expand, key);
         ArrayList<String> chars = new ArrayList<String>();
         String func = "";
-        for(int i = 0 ; i < xor.length() ; i+=6){
+        for(int i = 0 ; i < xor.length() ; i+=6){//cut the 48-bit into 6-bit each
             String tmp= "";
             for(int j = i ; j < i+6 ; j++){
                 if(j == xor.length())
@@ -401,11 +406,11 @@ public class DESEncryption {
             }
             chars.add(tmp);
         }
-        for(int i = 1 ; i < 9 ; i++){
+        for(int i = 1 ; i < 9 ; i++){//addmit each 6-bit to its' right S-Box
             String tmp = S_boxing(chars.get(i-1),i);
             func += tmp;
         }
-        
+        //addmit the output into permutaion table
         String perm = "";
         for(int i = 0 ; i< 32 ; i++){
             perm += func.charAt(permutation_table[i] -1);
@@ -413,16 +418,16 @@ public class DESEncryption {
         return perm;
     }
     
-    public String encrypt() throws IOException{
+    public String encrypt() throws IOException{//cipher
         String path = "F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\plain.txt";
-        ArrayList<String> chars = make64(path);
-        ArrayList<String> keys = generateKey();
+        ArrayList<String> chars = make64(path);//get the plain text as array each index contain 64-bit
+        ArrayList<String> keys = generateKey();//generate the 16 keys
         String cipher = "";
-        for(int i =0 ; i < chars.size() ; i++){
+        for(int i =0 ; i < chars.size() ; i++){//for each 64-bit in the array
             
             String tmp = chars.get(i);
             
-             
+            //addmit it to initial permutation table
             String perm ="";
             for(int j = 0 ; j < 64 ; j++){
                 perm += tmp.charAt(initial_permutation_table[j] -1);
@@ -430,6 +435,7 @@ public class DESEncryption {
             String left = "" , right ="";
             for(int r = 0 ; r < 16 ; r++){
                 left = "" ; right = "";
+                //split the key
                 for(int j = 0 ; j < 64 ; j++){
                     if(j < 32){
                         left += perm.charAt(j);
@@ -439,14 +445,14 @@ public class DESEncryption {
                 }
                 String expand = "";
                 
-                
+                //get the expantion of the right 
                 for(int j = 0 ; j < expansion_table.length ; j++){
                     expand += right.charAt(expansion_table[j] - 1);
                 }
                 
                 String fFun = F_Function(expand, keys.get(r));
                 left = XORing(left, fFun);
-                
+                //swap the new left and the right
                 String swap = left;
                 left = right;
                 right = swap;
@@ -455,13 +461,14 @@ public class DESEncryption {
                 
                 
             }
+            //do one final swap
             String swap2 = left;
             left = right;
             right = swap2;
             
             perm = left + right;
             
-            
+            //addmit on final permutation table
             String finalperm = "";
             for(int j = 0 ; j < final_perm.length ; j++){
                 finalperm += perm.charAt(final_perm[j] - 1);     
@@ -469,11 +476,13 @@ public class DESEncryption {
             cipher += finalperm;
             
         }
+        //get the ascci code of the binary output
         String file = "";
         for(int i = 0 ; i < cipher.length() ;i+=8){
             int ascci  = Integer.parseInt(cipher.substring(i, i+8), 2);
             file +=   Integer.toString(ascci) + " ";
         }
+        //write it in ciphered.txt
         FileWriter fw=new FileWriter("F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\cipherd.txt");
         for (int i = 0; i < file.length(); i++) 
             fw.write(file.charAt(i));
@@ -481,15 +490,15 @@ public class DESEncryption {
         
         return cipher;
     }
-    public String decrypt() throws IOException{
+    public String decrypt() throws IOException{//decipher with the same operations as the cipher
         String path = "F:\\college\\third year\\second term\\Computer Network Security\\assignments\\DES-encryption\\DES-encryption\\cipherd.txt";
         ArrayList<String> ascii = readfile(path);
         ArrayList<String> keys = generateKeyDec();
         ArrayList<String> chars = new ArrayList<String>();
         String code = arrayToString(ascii);
-        String nums[] = code.split(" ");
+        String nums[] = code.split(" ");//split each ascii number to convert later
         String ciphered = "";
-        for(int i = 0 ; i < nums.length ; i++){
+        for(int i = 0 ; i < nums.length ; i++){//convert to binary
             int num = Integer.parseInt(nums[i]);
             String tmp = Integer.toBinaryString(num); //get binary  0 1110101
             while(tmp.length() < 8){//add the missing bits
@@ -497,6 +506,7 @@ public class DESEncryption {
             }
             ciphered += tmp;
         }
+        //cut the binary to 64-bit each
         for(int i = 0 ; i < ciphered.length() ; i+=64){
             String tmp= "";
             for(int j = i ; j < i+64 ; j++){
@@ -507,14 +517,10 @@ public class DESEncryption {
             chars.add(tmp);
         }
         
-        
-        //-----------------------------------------
         String decipher = "";
         for(int i =0 ; i < chars.size() ; i++){
-            //String Key = readKey();
-            String tmp = chars.get(i);
             
-             
+            String tmp = chars.get(i);
             String perm ="";
             for(int j = 0 ; j < 64 ; j++){
                 perm += tmp.charAt(initial_permutation_table[j] -1);
@@ -544,7 +550,7 @@ public class DESEncryption {
                 right = swap;
                 
                 perm = left + right;
-                //left = ""; right = "";
+                
                 
             }
             String swap2 = left;
@@ -561,6 +567,7 @@ public class DESEncryption {
             decipher += finalperm;
         
         }
+        //convert binary to chars
         String str = "";
         for (int i = 0; i < decipher.length()/8; i++) {
             int a = Integer.parseInt(decipher.substring(8*i,(i+1)*8),2);
